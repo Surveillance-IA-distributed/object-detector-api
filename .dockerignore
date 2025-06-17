@@ -1,0 +1,11 @@
+# __pycache__/
+# *.pyc
+# *.pyo
+# *.pyd
+# *.swp
+# *.bak
+# *.tmp
+# .dS_Store
+# *.mp4
+# *.pt
+# detections.json
