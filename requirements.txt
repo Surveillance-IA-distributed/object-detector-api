@@ -1,6 +1,8 @@
-ultralytics
-opencv-python-headless
-torch
+# requirements.txt
+nats-py==2.6.0
+python-dotenv==1.0.0
+opencv-python
 numpy
-matplotlib
-webcolors
+ultralytics
+asyncio
+
