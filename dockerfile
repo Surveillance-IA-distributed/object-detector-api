@@ -6,6 +6,13 @@ WORKDIR /app
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libglib2.0-0 \
+    libgl1-mesa-glx \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
@@ -15,7 +22,7 @@ COPY . .
 
 # Instalar paquetes de Python
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Comando por defecto al ejecutar el contenedor
-CMD ["python", "yolo_detection.py"]
+CMD ["python", "main.py"]

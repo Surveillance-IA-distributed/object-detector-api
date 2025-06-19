@@ -1,22 +1,23 @@
-version: '3.8'
+# # Sin usar
+# version: '3.8'
 
-services:
-  nats:
-    image: nats:latest
-    ports:
-      - "4222:4222"
-      - "8222:8222"  # Monitoring port
-    command: ["--js", "--http_port", "8222"]
-  object-detection-service:
-    build: 
-      context: ..
-      dockerfile: docker/Dockerfile
-    depends_on:
-      - nats
-    env_file:
-      - ../.env
-    restart: unless-stopped
-    volumes:
-      - yolomodel:/app 
-volumes:
-  yolomodel:
+# services:
+#   nats:
+#     image: nats:latest
+#     ports:
+#       - "4222:4222"
+#       - "8222:8222"  # Monitoring port
+#     command: ["--js", "--http_port", "8222"]
+#   object-detection-service:
+#     build: 
+#       context: ..
+#       dockerfile: docker/Dockerfile
+#     depends_on:
+#       - nats
+#     env_file:
+#       - ../.env
+#     restart: unless-stopped
+#     volumes:
+#       - yolomodel:/app 
+# volumes:
+#   yolomodel:
