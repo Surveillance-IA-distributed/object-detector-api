@@ -1,4 +1,4 @@
-# Microservicio video-data-ms
+# Microservicio object-detector-api
 Este es un microservicio hecho en python que tiene el objetivo de extraer caracteristicas de frames de videos y almacenarlas en una base de datos PostgreSQL
 
 ## Configuracion de variables de entorno
