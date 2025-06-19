@@ -1,0 +1,5 @@
+.env
+detections.json
+*.mp4
+*.pt
+.DS_Store
