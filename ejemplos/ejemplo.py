@@ -15,7 +15,7 @@ async def ejemplo_analisis_con_imagen_real():
     
     try:
         # Cargar una imagen real desde el sistema de archivos
-        ruta_imagen = "imagenes/test_1.jpg"  # Cambia esta ruta según tu entorno
+        ruta_imagen = "imagenes/personas.jpg"  # Cambia esta ruta según tu entorno
         img = cv2.imread(ruta_imagen)
         
         if img is None:
@@ -43,7 +43,7 @@ async def ejemplo_analisis_con_imagen_real():
             ],
             "metadata": {
                 "video_name": "imagen_real_test",
-                "source": "real_camera",
+                "source": "video_demo",
                 "processing_date": datetime.now().strftime("%Y-%m-%d")
             }
         }
@@ -136,7 +136,7 @@ async def ejemplo_analisis_frame_unico():
     nc = await nats.connect("nats://localhost:4222")
     
     try:
-        ruta_imagen = "imagenes/test_1.jpg"  # Imagen para frame único
+        ruta_imagen = "imagenes/personas.jpg"  # Imagen para frame único
         img = cv2.imread(ruta_imagen)
         
         if img is None:
