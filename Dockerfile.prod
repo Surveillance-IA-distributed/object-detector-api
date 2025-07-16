@@ -1,0 +1,52 @@
+# ----------------- [+] STAGE 1: BUILDER -----------------
+FROM python:3.10-slim as builder
+
+WORKDIR /app
+
+# Instalar dependencias del sistema necesarias solo para build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgl1-mesa-glx \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar dependencias de Python
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install --prefix=/install --no-cache-dir -r requirements.txt
+
+# ----------------- [+] STAGE 2: FINAL -----------------
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Instalar solo runtime system deps (mínimas)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgl1-mesa-glx \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar las dependencias instaladas en la etapa anterior
+COPY --from=builder /install /usr/local
+
+# Copiar código fuente
+COPY . .
+
+# Establecer variables de entorno
+ENV PYTHONUNBUFFERED=1 \
+    ENV=production
+
+# Establecer un usuario sin privilegios (si tu app lo permite)
+# RUN useradd -m appuser
+# USER appuser
+
+# Comando de ejecución
+CMD ["python", "main.py"]
