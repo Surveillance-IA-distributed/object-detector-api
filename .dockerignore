@@ -1,13 +1,69 @@
-__pycache__/
-*.pyc
-*.pyo
-*.log
+# Venvs y caches
+.venv/
+venv/
+env/
 *.env
 *.env.*
 .env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+.dist-info/
+.cache/
+.mypy_cache/
+.pytest_cache/
+build/
+dist/
+
+# Control de versiones y editor
+.git/
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos de ejemplos y tests (NO copiar a producción)
+ejemplos/
+debug_images/
+imagenes/
 tests/
+*.mp4
+*.avi
+*.mov
+detections.json
+diagnostic_output.jpg
+
+# Datos/pesos/salidas grandes (modelo se descarga en build)
+data/
+datasets/
+runs/
+outputs/
+logs/
+*.log
+checkpoints/
+models/
+# *.pt  # COMENTADO: Necesitamos yolo11n.pt si ya está descargado
+*.onnx
+*.engine
+*.bin
+*.weights
+
+# Otros
+node_modules/
+.DS_Store
 *.md
 docker-compose.*
-Dockerfile*
-.vscode/
-.idea/
+# Dockerfile* # COMENTADO: Ya está en la imagen, no problema
+
+# Docker y compose
+docker/
+
+# Requirements alternativos
+requirements2.txt

@@ -1,0 +1,16 @@
+# requirements.txt
+nats-py==2.6.0
+python-dotenv==1.0.0
+opencv-python
+numpy
+ultralytics
+asyncio
+opencv-python-headless
+torch
+matplotlib
+webcolors
+Pillow
+torchvision
+pyyaml
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.0

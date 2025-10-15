@@ -9,20 +9,53 @@ logger = logging.getLogger(__name__)
 
 class DatabaseHandler:
     def __init__(self):
-        self.db_config = {
-            'host': os.getenv('DB_HOST', 'localhost'),
-            'port': int(os.getenv('DB_PORT', '5432')),
-            'user': os.getenv('DB_USER', 'postgres'),
-            'password': os.getenv('DB_PASSWORD', '123456'),
-            'database': os.getenv('DB_NAME', 'videosdb')
-        }
+        # Soportar DATABASE_URL (prioridad) o variables separadas
+        self.database_url = os.getenv('DATABASE_URL')
+        
+        if self.database_url:
+            # Si DATABASE_URL está definida, usarla directamente
+            self.db_config = None
+            logger.info("Usando DATABASE_URL para conexión a base de datos")
+        else:
+            # Si no, usar variables separadas (para desarrollo local)
+            self.db_config = {
+                'host': os.getenv('DB_HOST', 'localhost'),
+                'port': int(os.getenv('DB_PORT', '5432')),
+                'user': os.getenv('DB_USER', 'postgres'),
+                'password': os.getenv('DB_PASSWORD', '123456'),
+                'database': os.getenv('DB_NAME', 'videosdb')
+            }
+            logger.info("Usando variables DB_HOST, DB_PORT, etc. para conexión")
+        
         self.pool = None
     
     async def initialize(self):
         """Inicializar pool de conexiones."""
         try:
-            self.pool = await asyncpg.create_pool(**self.db_config, max_size=10)
+            if self.database_url:
+                # Crear pool usando URL completa
+                self.pool = await asyncpg.create_pool(
+                    dsn=self.database_url,
+                    max_size=10,
+                    min_size=2,
+                    command_timeout=60
+                )
+            else:
+                # Crear pool usando configuración por partes
+                self.pool = await asyncpg.create_pool(
+                    **self.db_config,
+                    max_size=10,
+                    min_size=2,
+                    command_timeout=60
+                )
+            
             logger.info("Base de datos inicializada correctamente")
+            
+            # Verificar conexión
+            async with self.pool.acquire() as connection:
+                version = await connection.fetchval('SELECT version()')
+                logger.info(f"Conectado a: {version}")
+                
         except Exception as e:
             logger.error(f"Error inicializando base de datos: {e}")
             raise

@@ -1,51 +1,82 @@
 # ----------------- [+] STAGE 1: BUILDER -----------------
-FROM python:3.10-slim as builder
+FROM python:3.10-slim AS builder
 
 WORKDIR /app
 
-# Instalar dependencias del sistema necesarias solo para build
+# Instalar solo dependencias de build esenciales (mínimas)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgl1-mesa-glx \
-    ffmpeg \
+    libglib2.0-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar dependencias de Python
+# IMPORTANTE: Copiar requirements.txt PRIMERO (antes que todo)
+# Esto permite cachear la instalación de dependencias
 COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --prefix=/install --no-cache-dir -r requirements.txt
+
+# PASO 1: Upgrade pip
+RUN pip install --upgrade pip
+
+# PASO 2: Instalar PyTorch CPU-only PRIMERO (FORZAR CPU-only)
+# CRÍTICO: Usar --index-url SOLO (no --extra-index-url)
+RUN pip install --prefix=/install --no-cache-dir \
+    --index-url https://download.pytorch.org/whl/cpu \
+    torch==2.5.1+cpu torchvision==0.20.1+cpu
+
+# PASO 3: Instalar requirements.txt (opencv, numpy, etc.)
+RUN pip install --prefix=/install --no-cache-dir -r requirements.txt
+
+# PASO 4: Instalar ultralytics SIN dependencias (usa torch ya instalado)
+RUN pip install --prefix=/install --no-cache-dir --no-deps ultralytics
+
+# Limpiar archivos de caché y compilación (capa separada)
+RUN find /install -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
+    find /install -type f -name '*.pyc' -delete && \
+    find /install -type f -name '*.pyo' -delete && \
+    find /install -type d -name tests -exec rm -rf {} + 2>/dev/null || true && \
+    find /install -type d -name test -exec rm -rf {} + 2>/dev/null || true
 
 # ----------------- [+] STAGE 2: FINAL -----------------
-FROM python:3.10-slim
+FROM python:3.10-slim AS production
 
 WORKDIR /app
 
-# Instalar solo runtime system deps (mínimas)
+# Instalar SOLO runtime dependencies mínimas (sin -dev packages)
+# Nota: opencv-python-headless necesita estas librerías para funcionar
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
+    libgomp1 \
+    libgl1 \
     libsm6 \
     libxext6 \
-    libxrender-dev \
-    libgl1-mesa-glx \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+    libxrender1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get autoremove -y \
+    && apt-get clean
 
-# Copiar las dependencias instaladas en la etapa anterior
+# Copiar dependencias compiladas desde builder
 COPY --from=builder /install /usr/local
 
-# Copiar código fuente
-COPY . .
+# Copiar solo código fuente necesario (sin ejemplos ni archivos innecesarios)
+COPY main.py .
+COPY yolo_detection.py .
+COPY src/ ./src/
 
-# Establecer variables de entorno
+# Pre-descargar modelo YOLO durante el build (no en runtime)
+# Esto evita descargarlo cada vez que se inicia el contenedor
+RUN python -c "from ultralytics import YOLO; model = YOLO('yolo11n.pt'); print('Modelo YOLO11n descargado')" && \
+    # Limpiar caché de pip y archivos temporales
+    rm -rf ~/.cache/pip && \
+    find /usr/local -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local -type f -name '*.pyc' -delete && \
+    find /usr/local -type f -name '*.pyo' -delete
+
+# Variables de entorno
 ENV PYTHONUNBUFFERED=1 \
-    ENV=production
+    ENV=production \
+    PYTHONDONTWRITEBYTECODE=1
 
-# Establecer un usuario sin privilegios (si tu app lo permite)
-# RUN useradd -m appuser
+# Usuario sin privilegios (opcional, mejora seguridad)
+# RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 # USER appuser
 
 # Comando de ejecución

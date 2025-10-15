@@ -3,3 +3,11 @@ detections.json
 *.mp4
 *.pt
 .DS_Store
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.log

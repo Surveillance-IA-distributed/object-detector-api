@@ -1,16 +1,17 @@
-# requirements.txt
+# requirements.txt - Optimizado para producción
+# NOTA: PyTorch y torchvision se instalan en Dockerfile con CPU-only
+# NOTA: ultralytics se instala en Dockerfile sin dependencias automáticas
+
 nats-py==2.6.0
 python-dotenv==1.0.0
-opencv-python
+opencv-python-headless  # Solo esta versión, NO opencv-python
 numpy
-ultralytics
-asyncio
-opencv-python-headless
-torch
-matplotlib
 webcolors
-Pillow
-torchvision
-pyyaml
 asyncpg>=0.29.0
-psycopg2-binary>=2.9.0
+
+# Dependencias mínimas de ultralytics (sin torch, sin opencv duplicado)
+pyyaml
+requests
+scipy
+tqdm
+pillow
