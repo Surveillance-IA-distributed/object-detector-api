@@ -4,7 +4,7 @@ steps:
       [
         "build",
         "-t",
-        "northamerica-northeast1-docker.pkg.dev/surveillance-project-475107/surveillance-ai/video-data-ms-prod/object-detector-api-prod",
+        "northamerica-northeast1-docker.pkg.dev/surveillance-project-475107/surveillance-ai/object-detector-api-prod",
         "-f",
         "Dockerfile.prod",
         "--platform=linux/amd64",
@@ -14,7 +14,7 @@ steps:
     args:
       [
         "push",
-        "northamerica-northeast1-docker.pkg.dev/surveillance-project-475107/surveillance-ai/video-data-ms-prod/object-detector-api-prod",
+        "northamerica-northeast1-docker.pkg.dev/surveillance-project-475107/surveillance-ai/object-detector-api-prod",
       ]
 options:
   logging: CLOUD_LOGGING_ONLY
